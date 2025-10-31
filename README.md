@@ -15,10 +15,10 @@ This system allows users to **upload**, **share**, and **manage** files safely �
 ---
 
 ## 🖼️ Project Preview
+<img width="1908" height="908" alt="image" src="https://github.com/user-attachments/assets/2790bec5-70f3-48e3-8bd8-81c7d27ef66b" />
+<img width="1882" height="789" alt="image" src="https://github.com/user-attachments/assets/8377bb7f-bc34-4444-9b0c-0f202f296a9a" />
 
-<p align="center">
-  <img src="https://via.placeholder.com/900x450?text=Decentralized+File+Storage+UI+Preview" alt="Project Preview" />
-</p>
+<img width="1906" height="775" alt="image" src="https://github.com/user-attachments/assets/ad6e5887-43ca-4e21-8d5d-b5236c778cc9" />
 
 *(You can replace the above image link with a real screenshot from your app — for example: `/assets/screenshot.png`)*
 
