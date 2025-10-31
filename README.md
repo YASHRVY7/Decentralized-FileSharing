@@ -1,17 +1,33 @@
 
 # 🌐 Decentralized File Storage System
 
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.0-blue.svg?logo=ethereum)](https://soliditylang.org/)  
+[![IPFS](https://img.shields.io/badge/IPFS-Storage-green.svg?logo=ipfs)](https://ipfs.tech/)  
+[![Web3.js](https://img.shields.io/badge/Web3.js-Integration-orange.svg?logo=javascript)](https://web3js.readthedocs.io/)  
+[![MetaMask](https://img.shields.io/badge/MetaMask-Enabled-yellow.svg?logo=metamask)](https://metamask.io/)  
+[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](./LICENSE)
+
 A **secure and decentralized file storage dApp** built using **Ethereum Smart Contracts**, **IPFS**, and **Pinata**.  
 This system allows users to **upload**, **share**, and **manage** files safely — all while maintaining **data ownership** and **transparency** on the blockchain.
+
+> 🔒 Designed for **simplicity**, **security**, and **real-world usability**.
+
+---
+
+## 🖼️ Project Preview
+
+<p align="center">
+  <img src="https://via.placeholder.com/900x450?text=Decentralized+File+Storage+UI+Preview" alt="Project Preview" />
+</p>
+
+*(You can replace the above image link with a real screenshot from your app — for example: `/assets/screenshot.png`)*
 
 ---
 
 ## 🚀 Overview
 
-The project combines **blockchain-based access control** with **IPFS decentralized storage**.  
-Users can upload files to IPFS via Pinata, and a **4-digit key** mechanism ensures only authorized users can access shared files.
-
-> 🔒 Designed for **simplicity**, **security**, and **real-world usability**.
+This project combines **blockchain-based access control** with **IPFS decentralized storage**.  
+Users can upload files to IPFS via Pinata, and a **4-digit key** ensures only authorized users can access shared files.
 
 ---
 
@@ -20,178 +36,162 @@ Users can upload files to IPFS via Pinata, and a **4-digit key** mechanism ensur
 | Component | Technology Used |
 |------------|----------------|
 | **Smart Contract** | Solidity (Ethereum) |
-| **Decentralized Storage** | IPFS via Pinata |
+| **Storage** | IPFS via Pinata |
 | **Blockchain Access** | MetaMask + Web3.js |
 | **Frontend** | HTML, Bootstrap, JavaScript |
-| **Framework (Optional)** | Truffle / Hardhat for deployment |
+| **Framework** | Truffle / Hardhat |
 
 ---
 
-## 🌟 Key Features
+## 🌟 Features
 
-### 🗂️ 1. File Upload
-- Upload files to **IPFS** via **Pinata**.
-- Metadata (name, description, timestamp) stored in the smart contract.
-- Files displayed with IPFS hashes on the frontend.
+### 🗂️ File Upload
+- Upload files to **IPFS** through **Pinata**.
+- Metadata (name, description, timestamp) stored on the blockchain.
 
-### 🔑 2. Secure Access Control
-- File owners can grant access to others by providing:
-  - Receiver’s Ethereum address
-  - File’s IPFS hash
-  - A **4-digit access key**
-- Only users with the correct key can view/download shared files.
+### 🔑 Secure Access Control
+- Owners can share files by specifying:
+  - Receiver’s Ethereum address  
+  - File’s IPFS hash  
+  - A **4-digit access key**  
+- Only users with the correct key can access shared files.
 
-### 👥 3. Shared Access List
-- View all addresses granted access to each file.
-- Helps manage permissions and revoke access easily.
+### 👥 Shared Access List
+- View all addresses with granted access to a file.
+- Manage and revoke access easily.
 
-### 📥 4. Direct File Download
-- Download files **directly from IPFS** without opening them in the browser.
+### 📥 Direct File Download
+- Download directly from IPFS — no need to open the file in the browser.
 
-### 🦊 5. MetaMask Integration
-- MetaMask used for secure wallet-based authentication.
-- All blockchain transactions are signed using the user’s wallet.
+### 🦊 MetaMask Integration
+- Authenticate and sign blockchain transactions securely via MetaMask.
 
 ---
 
-## 🧩 Project Architecture
+## 🧩 Project Structure
 
 ```
 project/
 │
-├── contracts/                  # Solidity smart contracts
-│   └── FileStorage.sol         # Main smart contract logic
+├── contracts/
+│   └── FileStorage.sol          # Smart contract logic
 │
-├── build/                      # Auto-generated after compilation
+├── build/
 │   └── contracts/
-│       └── FileStorage.json    # ABI and bytecode
+│       └── FileStorage.json     # ABI & bytecode
 │
-├── app.js                      # Frontend JS (Web3 + Pinata logic)
-├── index.html                  # Frontend UI (Bootstrap + MetaMask)
-└── README.md                   # Project documentation
+├── app.js                       # Frontend logic (Web3 + Pinata)
+├── index.html                   # UI (Bootstrap + MetaMask)
+└── README.md                    # Documentation
 ```
 
 ---
 
 ## 💻 Smart Contract – `FileStorage.sol`
 
-### 🧱 Core Data Structures
-- **File Struct**: Stores
-  - IPFS hash  
-  - File name, description, timestamp  
-  - Owner’s address  
-- **Access Mapping**: Links IPFS hash → list of authorized addresses  
-- **Key Mapping**: Stores receiver’s address + IPFS hash → 4-digit key  
+### 🧱 Data Structures
+- **File Struct**
+  - IPFS hash, file name, description, timestamp, owner’s address  
+- **Access Mapping**
+  - IPFS hash → list of authorized addresses  
+- **Key Mapping**
+  - Receiver’s address + IPFS hash → 4-digit key  
 
-### 🔧 Key Functions
+### 🔧 Core Functions
 | Function | Description |
 |-----------|-------------|
-| `uploadFile` | Stores file metadata (IPFS hash, name, etc.) |
-| `grantAccess` | Grants file access to another user |
-| `hasAccess` | Verifies user access using 4-digit key |
-| `getFileDetails` | Retrieves metadata of a file |
-| `getFileAccessList` | Lists all users with access to a file |
+| `uploadFile` | Store file metadata on-chain |
+| `grantAccess` | Grant access to another user |
+| `hasAccess` | Verify access using 4-digit key |
+| `getFileDetails` | Retrieve file metadata |
+| `getFileAccessList` | View all authorized users |
 
 ---
 
 ## 🌐 Frontend Overview
 
 ### 🖥️ Components
-- **Navbar** – MetaMask connect & file sharing
-- **Upload Form** – For file uploads
-- **Files Table** – Displays uploaded files
-- **Access List Table** – Shows shared access per file
-- **Access Form** – For receivers to unlock shared files
-- **Share Modal** – Allows owners to grant file access
+- **Navbar** – MetaMask connect + share button  
+- **Upload Form** – File upload + metadata  
+- **Files Table** – Displays uploaded files  
+- **Access Form** – Unlock shared files  
+- **Share Modal** – Grant access securely  
 
 ### 🔄 Workflow
-1. **Connect MetaMask** – Initialize Web3.js connection.  
-2. **Upload File** – Upload to IPFS → Store metadata on-chain.  
-3. **Grant Access** – Share file by setting receiver address + 4-digit key.  
-4. **Access File** – Receivers enter sender address, hash, and key.  
-5. **Download File** – Retrieve from IPFS via direct download link.  
+1. **Connect MetaMask** → Initialize Web3.js connection  
+2. **Upload File** → Upload to IPFS + record metadata on-chain  
+3. **Grant Access** → Add receiver + 4-digit key to contract  
+4. **Access File** → Verify key, retrieve IPFS hash  
+5. **Download File** → Fetch directly from IPFS  
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Setup Guide
 
-### 🧰 Prerequisites
-- [Node.js](https://nodejs.org/)
-- [MetaMask](https://metamask.io/)
-- [Pinata Account](https://pinata.cloud/)
-- [Truffle](https://trufflesuite.com/) or [Hardhat](https://hardhat.org/)
+### 🧰 Requirements
+- Node.js and npm  
+- MetaMask  
+- Pinata account  
+- Truffle or Hardhat  
 
-### 🔨 Installation Steps
+### 🧩 Installation
 ```bash
-# 1. Clone the repository
+# Clone the repo
 git clone https://github.com/<your-username>/decentralized-file-storage.git
 cd decentralized-file-storage
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Compile and deploy the smart contract
+# Compile and deploy the contract
 truffle compile
 truffle migrate --network <network-name>
 ```
 
-### 🌍 Configure the Frontend
-- Open `app.js` and add:
-  - **Pinata API Key** and **Secret**
-  - **Deployed Smart Contract Address**
+### 🌍 Configure Frontend
+Edit `app.js` with your:
+- **Pinata API Key & Secret**
+- **Deployed Smart Contract Address**
 
-### ▶️ Run the App
+### ▶️ Run Application
 ```bash
-# Serve locally
 npx live-server
 ```
 Open `index.html` in your browser and connect MetaMask.
 
 ---
 
-## 🧠 How It Works
-
-1. **File Upload** → Pinata uploads → IPFS returns hash  
-2. **Smart Contract** → Stores metadata & owner info  
-3. **Grant Access** → Save receiver, hash, and key  
-4. **Verify Key** → Smart contract authenticates request  
-5. **Access File** → IPFS delivers the file to authorized users  
-
----
-
-## 📊 Example Flow
+## 📊 Example Usage
 
 | Action | User | Result |
 |--------|------|---------|
-| Upload file | Owner | File hash & metadata stored |
-| Share file | Owner | Access granted via 4-digit key |
-| Access file | Receiver | Smart contract validates access |
-| Download file | Receiver | File fetched directly from IPFS |
+| Upload File | Owner | IPFS hash & metadata stored |
+| Share File | Owner | Access granted using 4-digit key |
+| Access File | Receiver | Contract verifies key |
+| Download | Receiver | File fetched from IPFS |
 
 ---
 
 ## 🧾 License
 
 This project is released under the **MIT License**.  
-You’re free to use, modify, and distribute it with proper attribution.
+You’re free to use, modify, and distribute it with proper credit.
 
 ---
 
 ## 🙌 Acknowledgements
-- [Ethereum](https://ethereum.org/)
-- [IPFS](https://ipfs.tech/)
-- [Pinata](https://www.pinata.cloud/)
-- [MetaMask](https://metamask.io/)
+- [Ethereum](https://ethereum.org/)  
+- [IPFS](https://ipfs.tech/)  
+- [Pinata](https://www.pinata.cloud/)  
+- [MetaMask](https://metamask.io/)  
 - [Web3.js](https://web3js.readthedocs.io/)
 
 ---
 
 ## 💡 Conclusion
 
-This project showcases the power of **decentralized applications (dApps)** by integrating blockchain-based authentication with IPFS file storage.  
-Through its **4-digit key access system**, it ensures that **only authorized users** can view shared content — making it an ideal foundation for future decentralized cloud systems.
+This project showcases the potential of **decentralized file storage** by integrating blockchain access control with IPFS data storage.  
+With the **4-digit key authentication**, it ensures that only **authorized users** can view or download shared files.
 
-> ✨ *Built to make file storage simple, secure, and truly decentralized.*
+> ✨ *Built for a future where data ownership truly belongs to the user.*
 ````
-
-Would you like me to include **badges** (like `Solidity`, `IPFS`, `Web3.js`, etc.) and a **preview image section** (for your app UI screenshot)? Those make the README look even more professional for GitHub.
