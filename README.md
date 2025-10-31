@@ -20,7 +20,6 @@ This system allows users to **upload**, **share**, and **manage** files safely â
 
 <img width="1906" height="775" alt="image" src="https://github.com/user-attachments/assets/ad6e5887-43ca-4e21-8d5d-b5236c778cc9" />
 
-*(You can replace the above image link with a real screenshot from your app â€” for example: `/assets/screenshot.png`)*
 
 ---
 
