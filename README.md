@@ -193,5 +193,4 @@ You’re free to use, modify, and distribute it with proper credit.
 This project showcases the potential of **decentralized file storage** by integrating blockchain access control with IPFS data storage.  
 With the **4-digit key authentication**, it ensures that only **authorized users** can view or download shared files.
 
-> ✨ *Built for a future where data ownership truly belongs to the user.*
 ````
