@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DStorage - Decentralized File Storage</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #8B5CF6;
+      --primary-hover: #7C3AED;
+      --secondary-color: #6D28D9;
+      --accent-color: #A78BFA;
+      --background-dark: #0A0A0F;
+      --card-bg: #1A1A23;
+      --text-primary: #F9FAFB;
+      --text-secondary: #9CA3AF;
+      --border-color: rgba(139, 92, 246, 0.2);
+      --glow-color: rgba(139, 92, 246, 0.5);
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background-color: var(--background-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 100% 0%, rgba(109, 40, 217, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(167, 139, 250, 0.15) 0%, transparent 50%);
+      z-index: -1;
+    }
+
+    .navbar {
+      background: rgba(26, 26, 35, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+      padding: 1.25rem 0;
+      transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(10, 10, 15, 0.98);
+      box-shadow: 0 4px 30px rgba(139, 92, 246, 0.1);
+    }
+
+    .navbar-brand {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .navbar-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 40px;
+      width: calc(100% - 40px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), transparent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-brand:hover::after {
+      transform: scaleX(1);
+    }
+
+    .navbar-brand img {
+      width: 36px;
+      height: 36px;
+      margin-right: 1rem;
+      filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.3));
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .nav-btn-group {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .nav-btn-group::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      bottom: -10px;
+      left: -10px;
+      background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-btn-group:hover::before {
+      opacity: 1;
+    }
+
+    .btn-outline-light {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      color: var(--text-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-outline-light:hover {
+      border-color: var(--primary-color);
+      background: rgba(139, 92, 246, 0.2);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn i {
+      transition: transform 0.3s ease;
+    }
+
+    .btn:hover i {
+      transform: scale(1.2);
+    }
+
+    .hero-section {
+      min-height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      position: relative;
+      background: #0A0A0F;
+      overflow: hidden;
+      animation: gradientFlow 15s ease infinite;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.1) 0%, transparent 50%);
+      animation: gradientShift 10s ease infinite;
+      z-index: 1;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .hero-content {
+      width: 100%;
+      max-width: 1200px;
+      text-align: center;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 4rem;
+    }
+
+    .hero-section h1 {
+      font-size: 4.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hero-section p {
+      font-size: 1.25rem;
+      color: #9CA3AF;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+      animation: fadeUp 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.5s backwards;
+    }
+
+    .hero-section p strong {
+      color: #F9FAFB;
+      font-weight: 500;
+    }
+
+    .feature-grid {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      padding: 0 2rem;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .feature-card {
+      background: rgba(26, 26, 35, 0.4);
+      border: 1px solid rgba(139, 92, 246, 0.1);
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+      animation: cardReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .feature-icon svg {
+      width: 32px;
+      height: 32px;
+      color: #8B5CF6;
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #F9FAFB;
+    }
+
+    .feature-card p {
+      font-size: 1rem;
+      color: #9CA3AF;
+      line-height: 1.5;
+    }
+
+    @keyframes titleReveal {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .btn {
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: 0.5s;
+      z-index: -1;
+    }
+
+    .btn:hover::after {
+      transform: translateX(100%);
+    }
+
+    .card {
+      background: rgba(26, 26, 35, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(139, 92, 246, 0.1),
+        transparent
+      );
+      transition: 0.5s;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary-color);
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+    }
+
+    .form-control {
+      background: rgba(26, 26, 35, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control:focus {
+      background: rgba(26, 26, 35, 0.9);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+
+    .form-control::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .table {
+      background: transparent;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .table th {
+      background: rgba(26, 26, 35, 0.8);
+      color: var(--primary-color);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .table td {
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+
+    .badge {
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .badge:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+
+    .badge.bg-primary {
+      background: rgba(139, 92, 246, 0.2) !important;
+      color: var(--primary-color);
+    }
+
+    .badge.bg-info {
+      background: rgba(96, 165, 250, 0.2) !important;
+      color: #60A5FA;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, var(--card-bg), rgba(26, 26, 35, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .modal.show .modal-content {
+      animation: modalFadeIn 0.3s ease-out forwards;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      border-bottom-color: var(--border-color);
+    }
+
+    .modal-footer {
+      border-top-color: var(--border-color);
+    }
+
+    .alert {
+      border-radius: 1rem;
+      background: rgba(26, 26, 35, 0.9);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      animation: slideIn 0.5s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--background-dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Enhanced Animations */
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+
+    .rotating {
+        animation: rotating 20s linear infinite;
+    }
+
+    .scaling {
+        animation: scaling 2s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes rotating {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes scaling {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Gradient Border Animation */
+    .gradient-border {
+        position: relative;
+        border-radius: 1rem;
+        background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                    linear-gradient(45deg, var(--primary-color), var(--accent-color)) border-box;
+        border: 2px solid transparent;
+        animation: borderRotate 4s linear infinite;
+    }
+
+    @keyframes borderRotate {
+        from { border-image-source: linear-gradient(0deg, var(--primary-color), var(--accent-color)); }
+        to { border-image-source: linear-gradient(360deg, var(--primary-color), var(--accent-color)); }
+    }
+
+    /* Enhanced Feature Cards */
+    .feature-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover::before {
+        opacity: 1;
+    }
+
+    .feature-icon {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.2));
+        border-radius: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .feature-icon::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 1.5rem;
+        padding: 2px;
+        background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+    }
+
+    /* Particle Effect */
+    .particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+    }
+
+    .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        filter: blur(3px);
+        pointer-events: none;
+    }
+
+    .particle:nth-child(odd) {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-color);
+    }
+
+    .particle:nth-child(4n) {
+        width: 4px;
+        height: 4px;
+        background: var(--secondary-color);
+    }
+
+    .particle:nth-child(3n) {
+        width: 10px;
+        height: 10px;
+        background: var(--primary-color);
+        filter: blur(4px);
+    }
+
+    .main-content {
+        padding: 4rem 0;
+        background: var(--background-dark);
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .content-section {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .section-container {
+        margin-bottom: 4rem;
+    }
+
+    .form-section {
+        height: 100%;
+        background: rgba(26, 26, 35, 0.4);
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(12px);
+        padding: 2rem;
+    }
+
+    .table-section {
+        height: 100%;
+        background: rgba(26, 26, 35, 0.4);
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(12px);
+        padding: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+    }
+
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    /* Add new particle animations */
+    .particle-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      filter: blur(2px);
+      animation: floatParticle var(--duration) ease-in-out infinite;
+      opacity: var(--opacity);
+    }
+
+    @keyframes floatParticle {
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+      50% {
+        transform: translate(var(--x), var(--y));
+      }
+    }
+
+    /* Enhanced hero section animations */
+    .hero-section {
+      position: relative;
+      animation: gradientFlow 15s ease infinite;
+    }
+
+    .hero-section::before {
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(167, 139, 250, 0.1) 0%, transparent 50%);
+      animation: gradientShift 10s ease infinite;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    .hero-content h1 {
+      animation: titleReveal 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @keyframes titleReveal {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content p {
+      animation: fadeUp 1.5s cubic-bezier(0.4, 0, 0.2, 1) 0.5s backwards;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature-card {
+      animation: cardReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.6s; }
+    .feature-card:nth-child(2) { animation-delay: 0.8s; }
+    .feature-card:nth-child(3) { animation-delay: 1s; }
+
+    @keyframes cardReveal {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Add custom CSS for blockchain explorer style tables */
+    .blockchain-explorer-table .text-monospace {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+    }
+    
+    .blockchain-explorer-table td {
+      vertical-align: middle;
+    }
+    
+    .blockchain-explorer-table button {
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    
+    .blockchain-explorer-table button:hover {
+      opacity: 1;
+    }
+    
+    .blockchain-explorer-table tr:hover {
+      background-color: rgba(139, 92, 246, 0.1) !important;
+    }
+
+    .transaction-row {
+      transition: all 0.2s ease-in-out;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+    
+    .transaction-row:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      background-color: rgba(139, 92, 246, 0.1) !important;
+    }
+    
+    .transaction-row.table-row-uploaded {
+      border-left-color: #10B981; /* Success color */
+    }
+    
+    .transaction-row.table-row-granted {
+      border-left-color: #3B82F6; /* Primary color */
+    }
+    
+    .transaction-row.table-row-revoked {
+      border-left-color: #EF4444; /* Danger color */
+    }
+    
+    .transaction-row .copy-btn {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .transaction-row:hover .copy-btn {
+      opacity: 0.7;
+    }
+    
+    .transaction-row:hover .copy-btn:hover {
+      opacity: 1;
+    }
+    
+    .transaction-data {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+    }
+    
+    /* Add visual pulse effect to new transactions */
+    @keyframes newTransactionPulse {
+      0% { background-color: rgba(139, 92, 246, 0.2); }
+      50% { background-color: rgba(139, 92, 246, 0); }
+      100% { background-color: rgba(139, 92, 246, 0.2); }
+    }
+    
+    .transaction-row-new {
+      animation: newTransactionPulse 2s ease-in-out;
+    }
+    
+    /* Event badge styles */
+    .badge {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.7rem;
+      font-weight: 500;
+      border-radius: 30px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Filter controls for transactions */
+    .transaction-filters {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      border-radius: 20px;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      background: transparent;
+      color: #9CA3AF;
+      transition: all 0.2s ease;
+    }
+    
+    .filter-btn:hover {
+      background-color: rgba(139, 92, 246, 0.1);
+      color: #F9FAFB;
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+    
+    .filter-btn.active {
+      background-color: rgba(139, 92, 246, 0.2);
+      color: #F9FAFB;
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+    
+    /* Transaction statistics */
+    .transaction-stats {
+      padding: 1rem;
+      border-radius: 10px;
+      background-color: rgba(26, 26, 35, 0.6);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      margin-bottom: 1.5rem;
+    }
+    
+    .transaction-stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.7rem 1.2rem;
+      background-color: rgba(10, 10, 15, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      transition: all 0.2s ease;
+    }
+    
+    .transaction-stat-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+    
+    .stat-count {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.2rem;
+      color: #F9FAFB;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: #9CA3AF;
+      white-space: nowrap;
+    }
+    
+    .uploads-stat {
+      border-left: 3px solid #10B981;
+    }
+    
+    .granted-stat {
+      border-left: 3px solid #3B82F6;
+    }
+    
+    .revoked-stat {
+      border-left: 3px solid #EF4444;
+    }
+    
+    .accessed-stat {
+      border-left: 3px solid #6366F1;
+    }
+    
+    .last-updated {
+      font-size: 0.8rem;
+      color: #9CA3AF;
+      padding: 0.3rem 0.8rem;
+      background-color: rgba(10, 10, 15, 0.3);
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    
+    /* Text pulse animation for statistics */
+    @keyframes textPulse {
+      0% { transform: scale(1); color: #F9FAFB; }
+      50% { transform: scale(1.2); color: rgba(139, 92, 246, 1); }
+      100% { transform: scale(1); color: #F9FAFB; }
+    }
+    
+    .text-pulse {
+      animation: textPulse 0.5s ease-in-out;
+    }
+    
+    /* Responsive adjustments for transaction table */
+    @media (max-width: 768px) {
+      .blockchain-explorer-table th,
+      .blockchain-explorer-table td {
+        font-size: 0.8rem;
+      }
+      
+      .badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.5rem;
+      }
+    }
+
+    .transaction-chart {
+      border: 1px solid #343a40;
+      box-shadow: 0 0 15px rgba(0, 0, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .transaction-chart:hover {
+      box-shadow: 0 0 20px rgba(0, 0, 255, 0.2);
+    }
+
+    #transactionDetailsModal .modal-content {
+      background-color: #1A1A23;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    
+    #transactionDetailsModal .modal-body {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    #transactionDetailsModal .text-monospace {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+      color: #ffffff;
+    }
+
+    #transactionDetailsModal .modal-title {
+      color: #ffffff;
+    }
+    
+    #transactionDetailsModal .transaction-data {
+      color: #ffffff;
+    }
+    
+    #transactionDetailsModal .text-muted {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    /* Fix for transaction details modal text color */
+    #transactionDetailsModal .modal-content {
+      color: white;
+    }
+    
+    #transactionDetailsModal .transaction-data,
+    #transactionDetailsModal .text-monospace,
+    #transactionDetailsModal #txFileNameDisplay,
+    #transactionDetailsModal #txFileHashDisplay,
+    #transactionDetailsModal #txOriginalOwnerDisplay,
+    #transactionDetailsModal #txSharedByDisplay,
+    #transactionDetailsModal #txSharedToDisplay,
+    #transactionDetailsModal #txHashDisplay,
+    #transactionDetailsModal #txTimeDisplay {
+      color: white !important;
+    }
+  </style>
+  <!-- Add CryptoJS library for AES encryption/decryption -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+  <!-- Enhanced Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238B5CF6'%3E%3Cpath d='M19.5 7.5h-7L9 4.5H4.5A1.5 1.5 0 003 6v12a1.5 1.5 0 001.5 1.5h15a1.5 1.5 0 001.5-1.5V9a1.5 1.5 0 00-1.5-1.5zM4.5 6h4.5l3.5 3h7V9l-15 .003V6zm15 12h-15V10.5l15-.003V18z'/%3E%3C/svg%3E" alt="DStorage Logo">
+        DStorage
+      </a>
+      <div class="nav-btn-group">
+        <button class="btn btn-outline-light" id="shareButton">
+          <i class="bi bi-share-fill me-2"></i>Share File
+        </button>
+        <button class="btn btn-primary" id="connectMetamask">
+          <i class="bi bi-wallet2 me-2"></i>Connect Wallet
+      </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Updated Hero Section -->
+  <section class="hero-section">
+    <div class="particle-container" id="particleContainer"></div>
+    <div class="hero-content">
+      <h1>Decentralized Storage</h1>
+      <p>Experience the future of file storage with <strong>military-grade encryption</strong><br>and <strong>decentralized technology</strong></p>
+    </div>
+    
+    <div class="feature-grid">
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h3>End-to-End Encryption</h3>
+        <p>Your files are encrypted before they leave your device, ensuring maximum security</p>
+      </div>
+      
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+        <h3>IPFS Storage</h3>
+        <p>Distributed storage across the global IPFS network for maximum reliability</p>
+      </div>
+      
+      <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+          </svg>
+        </div>
+        <h3>Smart Access Control</h3>
+        <p>Granular control over file sharing with blockchain-powered permissions</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Updated Main Content Structure -->
+  <div class="main-content">
+    <div class="content-section">
+      <!-- Upload and Files Section -->
+      <div class="section-container">
+        <div class="row g-4">
+          <!-- Upload Form - Left Side -->
+          <div class="col-md-5">
+            <div class="form-section h-100">
+              <h5 class="section-title d-flex align-items-center">
+                <i class="bi bi-cloud-upload-fill me-2 text-primary"></i>
+                Upload File
+              </h5>
+              <div class="upload-form">
+                <div class="mb-3">
+                  <label class="form-label">Choose File</label>
+                  <input type="file" id="fileInput" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">File Name</label>
+                  <input type="text" id="fileNameInput" class="form-control" placeholder="Enter a descriptive name for your file">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Description</label>
+                  <input type="text" id="descriptionInput" class="form-control" placeholder="Add details about your file">
+                </div>
+                <button class="btn btn-primary w-100" id="uploadButton">
+                  <i class="bi bi-cloud-upload me-2"></i>Upload to IPFS
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Files Table - Right Side -->
+          <div class="col-md-7">
+            <div class="table-section h-100">
+              <h5 class="section-title d-flex align-items-center">
+                <i class="bi bi-files me-2 text-primary"></i>
+                Your Files
+              </h5>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover">
+          <thead>
+            <tr>
+                      <th>Name</th>
+                      <th>Description</th>
+                      <th>Encrypted IPFS Hash</th>
+                      <th>Action</th>
+                      <th>Time</th>
+                      <th>Share</th>
+            </tr>
+          </thead>
+          <tbody id="fileListTable"></tbody>
+        </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Access and Shared Access Section -->
+      <div class="section-container">
+        <div class="row g-4">
+          <!-- Access Form - Left Side -->
+          <div class="col-md-5">
+            <div class="form-section h-100">
+              <h5 class="section-title d-flex align-items-center">
+                <i class="bi bi-key-fill me-2 text-primary"></i>
+                Access Shared File
+              </h5>
+              <div class="access-form">
+                <div class="mb-3">
+                  <label class="form-label">Sender Address</label>
+                  <input type="text" id="senderAddress" class="form-control" placeholder="Enter the Ethereum address of the sender (0x...)">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Encrypted IPFS Hash</label>
+                  <input type="text" id="fileHashInput" class="form-control" placeholder="Enter the encrypted IPFS hash of the shared file">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Access Key</label>
+                  <input type="text" id="accessKeyInput" class="form-control" pattern="[0-9]{4}" maxlength="4" placeholder="Enter the 4-digit access key">
+                </div>
+                <button class="btn btn-primary w-100" id="accessFileButton">
+                  <i class="bi bi-unlock me-2"></i>Access File
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shared Access Table - Right Side -->
+          <div class="col-md-7">
+            <div class="table-section h-100">
+              <h5 class="section-title d-flex align-items-center">
+                <i class="bi bi-people me-2 text-primary"></i>
+                Shared Access
+              </h5>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover">
+          <thead>
+            <tr>
+                      <th>Encrypted IPFS Hash</th>
+                      <th>User</th>
+                      <th>Granted At</th>
+                      <th>Status</th>
+                      <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="sharedAccessTable"></tbody>
+        </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Sharing History Section -->
+      <div class="section-container">
+        <div class="row g-4">
+          <div class="col-md-12">
+            <div class="table-section h-100">
+              <h5 class="section-title d-flex align-items-center justify-content-between">
+                <div>
+                  <i class="bi bi-diagram-3-fill me-2 text-primary"></i>
+                  Blockchain Transaction History
+                </div>
+                <div class="d-flex gap-2">
+                  <button id="exportTransactions" class="btn btn-sm btn-outline-success" title="Export transaction history to CSV">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>
+                    Export CSV
+                  </button>
+                  <button id="refreshTransactions" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>
+                    Refresh
+                  </button>
+                </div>
+              </h5>
+              
+              <!-- Transaction statistics -->
+              <div class="transaction-stats mb-3 d-flex flex-wrap justify-content-between align-items-center">
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="transaction-stat-box">
+                    <span class="stat-count" id="totalTransactionsCount">0</span>
+                    <span class="stat-label">All Transactions</span>
+                  </div>
+                  <div class="transaction-stat-box uploads-stat">
+                    <span class="stat-count" id="uploadTransactionsCount">0</span>
+                    <span class="stat-label"><i class="bi bi-cloud-upload me-1"></i>Uploads</span>
+                  </div>
+                  <div class="transaction-stat-box granted-stat">
+                    <span class="stat-count" id="grantedTransactionsCount">0</span>
+                    <span class="stat-label"><i class="bi bi-key me-1"></i>Grants</span>
+                  </div>
+                  <div class="transaction-stat-box revoked-stat">
+                    <span class="stat-count" id="revokedTransactionsCount">0</span>
+                    <span class="stat-label"><i class="bi bi-slash-circle me-1"></i>Revokes</span>
+                  </div>
+                  <div class="transaction-stat-box accessed-stat">
+                    <span class="stat-count" id="accessedTransactionsCount">0</span>
+                    <span class="stat-label"><i class="bi bi-eye me-1"></i>Accesses</span>
+                  </div>
+                </div>
+                <div class="last-updated small text-muted">
+                  <span id="lastUpdatedTime">Never</span>
+                  <i class="bi bi-clock ms-1"></i>
+                </div>
+              </div>
+              
+              <!-- Transaction search and filter controls -->
+              <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+                <div class="transaction-search flex-grow-1">
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary">
+                      <i class="bi bi-search text-secondary"></i>
+                    </span>
+                    <input type="text" id="transactionSearch" class="form-control bg-dark border-secondary text-light" placeholder="Search by file name, hash, or address...">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="transaction-date-filter">
+                  <select id="timeFilter" class="form-select bg-dark border-secondary text-light">
+                    <option value="all">All Time</option>
+                    <option value="day">Last 24 Hours</option>
+                    <option value="week">Last 7 Days</option>
+                    <option value="month">Last 30 Days</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Transaction filters -->
+              <div class="transaction-filters mb-3">
+                <button class="filter-btn active" data-filter="all">
+                  <i class="bi bi-grid-3x3-gap me-1"></i> All Transactions
+                </button>
+                <button class="filter-btn" data-filter="FileUploaded">
+                  <i class="bi bi-cloud-upload me-1"></i> Uploads
+                </button>
+                <button class="filter-btn" data-filter="AccessGranted">
+                  <i class="bi bi-key me-1"></i> Access Granted
+                </button>
+                <button class="filter-btn" data-filter="AccessRevoked">
+                  <i class="bi bi-slash-circle me-1"></i> Access Revoked
+                </button>
+                <button class="filter-btn" data-filter="FileAccessed">
+                  <i class="bi bi-eye me-1"></i> File Accessed
+                </button>
+              </div>
+              
+              <!-- Transaction history visualization chart -->
+              <div class="transaction-chart mb-4 p-3 rounded" style="background: rgba(10, 10, 15, 0.5); max-height: 350px; overflow: hidden;">
+                <h6 class="mb-3 text-muted">Transaction Activity</h6>
+                <canvas id="transactionHistoryChart" style="width: 100%; height: 250px;"></canvas>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="table table-dark table-hover blockchain-explorer-table">
+                  <thead>
+                    <tr>
+                      <th width="20%">FILE NAME</th>
+                      <th width="15%">ORIGINAL OWNER</th>
+                      <th width="15%">SHARED BY</th>
+                      <th width="15%">SHARED TO</th>
+                      <th width="10%">TIME</th>
+                      <th width="15%">EVENT TYPE</th>
+                    </tr>
+                  </thead>
+                  <tbody id="shareHistoryTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title">
+            <i class="bi bi-share-fill me-2 text-primary"></i>
+            Share File Access
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Receiver Address</label>
+            <input type="text" id="receiverAddress" class="form-control" placeholder="Enter the recipient's Ethereum address (0x...)">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Encrypted IPFS Hash</label>
+            <input type="text" id="shareFileHash" class="form-control" placeholder="Enter the encrypted IPFS hash of the file to share">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Access Key</label>
+            <input type="text" id="accessKey" class="form-control" pattern="[0-9]{4}" maxlength="4" placeholder="Create a 4-digit access key">
+          </div>
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-2"></i>Cancel
+          </button>
+          <button type="button" class="btn btn-primary" id="grantAccessButton">
+            <i class="bi bi-check-circle me-2"></i>Grant Access
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction Details Modal -->
+  <div class="modal fade" id="transactionDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title">
+            <i class="bi bi-info-circle-fill me-2 text-primary"></i>
+            Transaction Details
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="transaction-details">
+            <div class="row mb-3">
+              <div class="col-md-4 text-muted">File Name</div>
+              <div class="col-md-8 font-weight-bold text-white" id="txFileNameDisplay"></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4 text-muted">File Hash (IPFS)</div>
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <span class="text-monospace transaction-data text-white" id="txFileHashDisplay"></span>
+                  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyTransactionData('txFileHashDisplay')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4 text-muted">Event Type</div>
+              <div class="col-md-8">
+                <span class="badge bg-info" id="txEventTypeDisplay"></span>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4 text-muted">Original Owner</div>
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <span class="text-monospace transaction-data text-white" id="txOriginalOwnerDisplay"></span>
+                  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyTransactionData('txOriginalOwnerDisplay')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3" id="sharedByRow">
+              <div class="col-md-4 text-muted">Shared By</div>
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <span class="text-monospace transaction-data text-white" id="txSharedByDisplay"></span>
+                  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyTransactionData('txSharedByDisplay')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3" id="sharedToRow">
+              <div class="col-md-4 text-muted">Shared To</div>
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <span class="text-monospace transaction-data text-white" id="txSharedToDisplay"></span>
+                  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyTransactionData('txSharedToDisplay')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3" id="txHashSection">
+              <div class="col-md-4 text-muted">Transaction Hash</div>
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <span class="text-monospace transaction-data text-white" id="txHashDisplay"></span>
+                  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyTransactionData('txHashDisplay')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-4 text-muted">Transaction Time</div>
+              <div class="col-md-8 text-white" id="txTimeDisplay"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+            <i class="bi bi-check-circle me-2"></i>Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+  <script src="app.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init({
+        duration: 800,
+        easing: 'ease-out',
+        once: true
+    });
+
+    // Add custom CSS for blockchain explorer style tables
+    const customStyle = document.createElement('style');
+    customStyle.textContent = `
+      .blockchain-explorer-table .text-monospace {
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        word-break: break-all;
+      }
+      
+      .blockchain-explorer-table td {
+        vertical-align: middle;
+      }
+      
+      .blockchain-explorer-table button {
+        opacity: 0.5;
+        transition: opacity 0.2s;
+      }
+      
+      .blockchain-explorer-table button:hover {
+        opacity: 1;
+      }
+      
+      .blockchain-explorer-table tr:hover {
+        background-color: rgba(139, 92, 246, 0.1) !important;
+      }
+      
+      .transaction-row {
+        transition: all 0.2s ease-in-out;
+      }
+      
+      .transaction-row:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      
+      .transaction-row .copy-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      
+      .transaction-row:hover .copy-btn {
+        opacity: 0.7;
+      }
+      
+      .transaction-row:hover .copy-btn:hover {
+        opacity: 1;
+      }
+      
+      .transaction-data {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        word-break: break-all;
+      }
+      
+      #transactionDetailsModal .modal-content {
+        background-color: #1A1A23;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+      }
+      
+      #transactionDetailsModal .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      
+      #transactionDetailsModal .text-monospace {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        word-break: break-all;
+        color: #ffffff;
+      }
+
+      #transactionDetailsModal .modal-title {
+        color: #ffffff;
+      }
+      
+      #transactionDetailsModal .transaction-data {
+        color: #ffffff;
+      }
+      
+      #transactionDetailsModal .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+    `;
+    document.head.appendChild(customStyle);
+
+    // Add particle animation script
+    function createParticles() {
+      const container = document.getElementById('particleContainer');
+      const particleCount = 30;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random properties for each particle
+        const duration = 10 + Math.random() * 20;
+        const x = (Math.random() - 0.5) * 200;
+        const y = (Math.random() - 0.5) * 200;
+        const opacity = 0.1 + Math.random() * 0.4;
+        const size = 2 + Math.random() * 8;
+
+        particle.style.cssText = `
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          width: ${size}px;
+          height: ${size}px;
+          --duration: ${duration}s;
+          --x: ${x}px;
+          --y: ${y}px;
+          --opacity: ${opacity};
+        `;
+
+        container.appendChild(particle);
+      }
+    }
+
+    // Initialize particles on load
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+    });
+
+    // Add navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  </script>
+</body>
+</html>
